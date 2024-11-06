@@ -1,6 +1,7 @@
 package store.view
 
 import camp.nextstep.edu.missionutils.Console
+import store.model.Inventory
 import store.model.Product
 import store.model.Promotion
 import store.utils.ErrorHandler.inputErrorHandler
@@ -57,8 +58,7 @@ object InputView {
         return promotions.find { it.name == name }
     }
 
-    fun getPurchaseProductAndQuantity() {
+    fun getPurchaseProductAndQuantity(inventory: Inventory) {
         val input = Console.readLine()
-        val
     }
 }

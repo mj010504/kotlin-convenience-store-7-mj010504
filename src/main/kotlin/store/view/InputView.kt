@@ -58,6 +58,7 @@ object InputView {
     }
 
     fun getPurchaseProductAndQuantity() {
-        Console.readLine()
+        val input = Console.readLine()
+        val
     }
 }

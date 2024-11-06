@@ -15,6 +15,7 @@ object InputView {
     private const val PRODUCTS_FILE = "./src/main/resources/products.md"
     private const val PROMOTIONS_FILE = "./src/main/resources/promotions.md"
     private const val FILE_READ_ERROR = "파일을 읽는 중 오류가 발생했습니다"
+    private const val PURCHASE_PROMPT = "구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])"
 
     private fun getFiieLines(path: String): List<String>? {
         try {

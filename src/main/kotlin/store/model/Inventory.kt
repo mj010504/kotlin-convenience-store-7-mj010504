@@ -10,7 +10,23 @@ class Inventory(val products: List<Product>) {
     fun checkQuantity(productName: String, quantity: Int) {
         val productsByName = products.filter { it.name == productName }
         val totalQuantity = productsByName.sumOf { it.quantity }
-        require(totalQuantity >= quantity) { getErrorMessage(INSUFFICIENT_QUANTITY) }
+        if(totalQuantity < quantity) throw IllegalArgumentException(getErrorMessage(INSUFFICIENT_QUANTITY))
+    }
+
+    fun getAdditionalProductCount(productName: String): Int {
+        val products = products.filter { it.name == productName }
+        val productWithPromotion = products.find { it.promotion != null }
+        return productWithPromotion!!.promotion!!.getCount
+    }
+
+    fun getNonPromotionalProductCount(productName: String, quantity: Int): Int {
+        val products = products.filter { it.name == productName }
+        val productWithPromotion = products.find { it.promotion != null }
+        val totalPromotionCount =
+            productWithPromotion!!.promotion!!.buyCount + productWithPromotion.promotion!!.getCount
+        val promotionalProductCount =
+            totalPromotionCount * (quantity / totalPromotionCount)
+        return quantity - promotionalProductCount
     }
 
     companion object {

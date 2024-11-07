@@ -4,10 +4,8 @@ import camp.nextstep.edu.missionutils.Console
 import store.model.Inventory
 import store.model.Product
 import store.model.Promotion
-import store.utils.ErrorHandler.inputErrorHandler
+import store.model.PromotionStatus
 import java.io.File
-import java.io.IOException
-import camp.nextstep.edu.missionutils.DateTimes.now
 import store.model.PurchaseItem
 import store.utils.ErrorHandler.getErrorMessage
 import java.time.LocalDate
@@ -16,10 +14,11 @@ object InputView {
 
     private const val PRODUCTS_FILE = "./src/main/resources/products.md"
     private const val PROMOTIONS_FILE = "./src/main/resources/promotions.md"
-    private const val FILE_READ_ERROR = "파일을 읽는 중 오류가 발생했습니다."
     private const val INVALID_PURCHASE_REQUEST = "올바르지 않은 구매 형식입니다."
     private const val PURCHASE_SCRIPT = "구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])"
-    private const val INVALID_QUANTITY = "수량은 숫자로만 입력 가능합니다."
+    private const val ASK_PROMOTION_APPLY = "현재 %s은(는) %d개를 무료로 더 받을 수 있습니다. 추가하시겠습니끼? (Y/N)"
+    private const val ASK_PURCHASE_WITHOUT_PROMOTION ="현재 %s %d개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)"
+    private const val INVALID_ANSWER = "Y 또는 N만 입력해야 합니다."
 
     private fun getFiieLines(path: String): List<String> {
         val file = File(path)
@@ -93,7 +92,7 @@ object InputView {
         purchases.map { purchase ->
             val regex = "\\[([a-zA-Z가-힣]+)-(\\d+)\\]".toRegex()
             val matchResult =
-                regex.find(purchase) ?: throw IllegalArgumentException(INVALID_PURCHASE_REQUEST)
+                regex.find(purchase) ?: throw IllegalArgumentException(getErrorMessage(INVALID_PURCHASE_REQUEST))
             matchResult
         }
 
@@ -101,12 +100,40 @@ object InputView {
         val productName = matchResult.groupValues[1]
         inventory.containsProductName(productName)
 
-        val quantity = matchResult.groupValues[2].toIntOrNull() ?: throw IllegalArgumentException(
-            getErrorMessage(INVALID_QUANTITY)
-        )
+        val quantity = matchResult.groupValues[2].toInt()
         inventory.checkQuantity(productName, quantity)
 
-        return PurchaseItem(productName, quantity)
+        return PurchaseItem(productName, quantity, PromotionStatus.convertToStatus(inventory, productName, quantity))
+    }
+
+    fun askToApplyPromotion(productName : String, getCount : Int) : Boolean {
+        println(ASK_PROMOTION_APPLY.format(productName, getCount))
+        val answer = Console.readLine()
+        try {
+            return when(answer) {
+                "Y" -> true
+                "N" -> false
+                else -> throw IllegalArgumentException(getErrorMessage(INVALID_ANSWER))
+            }
+        } catch (e : Exception) {
+            println(e.message)
+            return askToApplyPromotion(productName, getCount)
+        }
+    }
+
+    fun askToPurchaseWithoutPromotion(productName: String, nonPromotionalProductCount : Int) : Boolean {
+        println(ASK_PURCHASE_WITHOUT_PROMOTION.format(productName, nonPromotionalProductCount ))
+        val answer = Console.readLine()
+        try {
+            return when(answer) {
+                "Y" -> true
+                "N" -> false
+                else -> throw IllegalArgumentException(getErrorMessage(INVALID_ANSWER))
+            }
+        } catch (e : Exception) {
+            println(e.message)
+            return askToPurchaseWithoutPromotion(productName, nonPromotionalProductCount)
+        }
     }
 
 }

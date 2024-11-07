@@ -71,16 +71,11 @@ object InputView {
         return promotions.find { it.name == name }
     }
 
-    fun getPurchase(inventory: Inventory) {
+    fun getPurchase(inventory: Inventory): List<PurchaseItem> {
         println(PURCHASE_SCRIPT)
         val input = Console.readLine()
         val purchases = input.split(",")
-        try {
-            validatePurchase(inventory, purchases)
-        } catch (e: Exception) {
-            println(e.message)
-            getPurchase(inventory)
-        }
+        return validatePurchase(inventory, purchases)
 
     }
 

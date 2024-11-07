@@ -1,6 +1,8 @@
 package store.controller
 
 import store.model.Inventory
+import store.model.PurchaseItem
+import store.utils.ErrorHandler.getErrorMessage
 import store.view.InputView
 import store.view.InputView.getPurchase
 import store.view.InputView.getProducts
@@ -17,11 +19,19 @@ class StoreController {
         val inventory = Inventory(products)
         printInventory(inventory)
 
-        InputView.getPurchase(inventory)
+        val purchaseItems = getPurchase(inventory)
     }
 
-    private fun getPurchase(inventory: Inventory) {
-        InputView.getPurchase(inventory)
+    private fun getPurchaseItem(inventory: Inventory) : List<PurchaseItem> {
+        try {
+            return getPurchase(inventory)
+        }
+        catch (e : Exception) {
+            println(e.message)
+            return getPurchase(inventory)
+
+        }
+
     }
 
 

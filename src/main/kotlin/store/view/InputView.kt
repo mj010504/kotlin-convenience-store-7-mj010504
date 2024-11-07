@@ -7,16 +7,18 @@ import store.model.Promotion
 import store.utils.ErrorHandler.inputErrorHandler
 import java.io.File
 import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Paths
+import camp.nextstep.edu.missionutils.DateTimes.now
+import store.utils.ErrorHandler.getErrorMessage
 import java.time.LocalDate
 
 object InputView {
 
     private const val PRODUCTS_FILE = "./src/main/resources/products.md"
     private const val PROMOTIONS_FILE = "./src/main/resources/promotions.md"
-    private const val FILE_READ_ERROR = "파일을 읽는 중 오류가 발생했습니다"
-    private const val PURCHASE_PROMPT = "구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])"
+    private const val FILE_READ_ERROR = "파일을 읽는 중 오류가 발생했습니다."
+    private const val INVALID_PURCHASE_REQUEST = "올바르지 않은 구매 형식입니다."
+    private const val PURCHASE_SCRIPT = "구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])"
+    private const val INVALID_QUANTITY = "수량은 숫자로만 입력 가능합니다."
 
     private fun getFiieLines(path: String): List<String>? {
         try {
@@ -58,7 +60,35 @@ object InputView {
         return promotions.find { it.name == name }
     }
 
-    fun getPurchaseProductAndQuantity(inventory: Inventory) {
+    fun getPurchase(inventory: Inventory) {
+        println(PURCHASE_SCRIPT)
         val input = Console.readLine()
+        val purchases = input.split(",")
+        try {
+            validatePurchase(inventory, purchases)
+        }
+        catch (e : Exception) {
+            println(e.message)
+            getPurchase(inventory)
+        }
+
     }
+
+    private fun validatePurchase(inventory: Inventory, purchases : List<String>) {
+            purchases.forEach { purchase ->
+                val regex = "\\[([a-zA-Z가-힣]+)-(\\d+)\\]".toRegex()
+                val matches = regex.findAll(purchase)
+                require(matches.any()) { getErrorMessage(INVALID_PURCHASE_REQUEST) }
+
+                matches.forEach { matchResult ->
+                    val productName = matchResult.groupValues[1]
+                    inventory.containsProductName(productName)
+                    val quantity = matchResult.groupValues[2].toIntOrNull() ?: throw IllegalArgumentException(getErrorMessage(INVALID_QUANTITY))
+                    inventory.checkQuantity(productName, quantity)
+                }
+            }
+    }
+
+
+
 }

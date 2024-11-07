@@ -14,7 +14,7 @@ object OutputView {
     fun printInventory(inventory: Inventory) {
         println(WELCOME_MESSAGE)
         inventory.products.forEach { product ->
-            if(product.quntatiy != 0) println(PRODUCT_INFO.format(product.name, formatNumber(product.price), product.quntatiy, product.promotion?.name ?: ""))
+            if(product.quantity != 0) println(PRODUCT_INFO.format(product.name, formatNumber(product.price), product.quantity, product.promotion?.name ?: ""))
             else println(PRODUCT_INFO_OUT_OUF_STOCK.format(product.name, formatNumber(product.price), product.promotion?.name ?: ""))
         }
     }

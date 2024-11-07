@@ -14,7 +14,7 @@ class Inventory(val products: List<Product>) {
     }
 
     companion object {
-        private const val INVALID_PRODUCT_NAME = "%s는 존재하지 않는 상품입니다."
+        private const val INVALID_PRODUCT_NAME = "%s는(은) 존재하지 않는 상품입니다."
         private const val INSUFFICIENT_QUANTITY = "재고 수량을 초과하여 구매할 수 없습니다."
     }
 

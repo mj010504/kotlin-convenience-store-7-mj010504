@@ -25,7 +25,9 @@ class Inventory(val products: List<Product>) {
         val totalPromotionCount =
             productWithPromotion!!.promotion!!.buyCount + productWithPromotion.promotion!!.getCount
         val promotionalProductCount =
-            totalPromotionCount * (quantity / totalPromotionCount)
+            if(quantity <=  productWithPromotion.quantity) totalPromotionCount * (quantity / totalPromotionCount)
+            else totalPromotionCount * (productWithPromotion.quantity / totalPromotionCount)
+
         return quantity - promotionalProductCount
     }
 

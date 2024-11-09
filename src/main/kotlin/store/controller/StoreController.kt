@@ -15,7 +15,7 @@ import store.view.InputView.getPurchase
 import store.view.InputView.getProducts
 import store.view.InputView.getPromotions
 import store.view.OutputView.printInventory
-
+import store.view.OutputView.printReceipt
 
 class StoreController {
 
@@ -23,16 +23,15 @@ class StoreController {
         val promotions = getPromotions()
         val products = getProducts(promotions)
         val inventory = Inventory(products)
+        purchase(inventory)
+    }
 
+    private fun purchase(inventory: Inventory) {
         val purchaseItems = getPurchaseItem(inventory)
         val promotionedPurchases = checkPromotion(inventory, purchaseItems)
-        promotionedPurchases.forEach { purhcase ->
-            println(purhcase)
-        }
-
         purchaseItems(inventory, promotionedPurchases, confirmApplyMembershipDiscount())
-
     }
+
 
     private fun getPurchaseItem(inventory: Inventory): List<PurchaseItem> {
         try {
@@ -88,11 +87,15 @@ class StoreController {
 
     private fun purchaseItems(inventory: Inventory, purchases: List<PromotionedPurchase>, isMemeberShip : Boolean) {
         inventory.purchaseItems(purchases)
+        val totalPromotionedPrice = if(isMemeberShip) purchases.sumOf { purchase ->
+            inventory.getPromotionalProductCount(purchase.purchaseItem) * purchase.purchaseItem.price
+        } else 0
+        printReceipt(purchases, totalPromotionedPrice)
+        askToAnotherPurchase(inventory)
     }
 
     private fun askToAnotherPurchase(inventory: Inventory) {
-        if(askToAnotherPurchase()) getPurchaseItem(inventory)
+        if(askToAnotherPurchase()) purchase(inventory)
     }
-
 
 }

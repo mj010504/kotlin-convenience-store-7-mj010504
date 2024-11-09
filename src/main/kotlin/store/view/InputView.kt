@@ -17,7 +17,8 @@ object InputView {
     private const val INVALID_PURCHASE_REQUEST = "올바르지 않은 구매 형식입니다."
     private const val PURCHASE_SCRIPT = "구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])"
     private const val ASK_PROMOTION_APPLY = "현재 %s은(는) %d개를 무료로 더 받을 수 있습니다. 추가하시겠습니끼? (Y/N)"
-    private const val ASK_PURCHASE_WITHOUT_PROMOTION ="현재 %s %d개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)"
+    private const val ASK_PURCHASE_WITHOUT_PROMOTION =
+        "현재 %s %d개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)"
     private const val INVALID_ANSWER = "Y 또는 N만 입력해야 합니다."
     private const val ASK_ANOTHER_PURCHASE = "감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)"
     private const val ASK_MEMBERSHIP_DISCOUNT_APPLY = "멤버십 할인을 받으시겠습니까? (Y/N)"
@@ -52,19 +53,19 @@ object InputView {
         val products = mutableListOf<Product>()
         val lines = getFiieLines(PRODUCTS_FILE_PATH)
 
+        var lastProductWithoutPromotion: Product? = null
+
         lines.drop(1).forEach { line ->
             val parts = line.split(",")
-            if (parts.size == 4) products.add(
-                Product(
-                    parts[0],
-                    parts[1].toInt(),
-                    parts[2].toInt(),
-                    findPromotionByName(promotions, parts[3])
-                )
-            )
-            else products.add(Product(parts[0], parts[1].toInt(), parts[2].toInt()))
+            if (lastProductWithoutPromotion != null) {
+                if (lastProductWithoutPromotion!!.name != parts[0]) products.add(lastProductWithoutPromotion!!)
+                lastProductWithoutPromotion = null
+                }
+            val product = Product(parts[0], parts[1].toInt(), parts[2].toInt(), if (parts[3] == "null") null else findPromotionByName(promotions, parts[3]))
+            products.add(product)
+            if (parts[3] == "null") lastProductWithoutPromotion = null
+            else lastProductWithoutPromotion = Product(parts[0], parts[1].toInt(), 0, null)
         }
-
         return products
     }
 
@@ -81,8 +82,7 @@ object InputView {
     }
 
     private fun validatePurchase(
-        inventory: Inventory,
-        purchases: List<String>
+        inventory: Inventory, purchases: List<String>
     ): List<PurchaseItem> {
         val matchedResults = validatePurchaseFormat(purchases)
         return matchedResults.map { matchResult ->
@@ -93,8 +93,9 @@ object InputView {
     private fun validatePurchaseFormat(purchases: List<String>): List<MatchResult> =
         purchases.map { purchase ->
             val regex = "\\[([a-zA-Z가-힣]+)-(\\d+)\\]".toRegex()
-            val matchResult =
-                regex.find(purchase) ?: throw IllegalArgumentException(getErrorMessage(INVALID_PURCHASE_REQUEST))
+            val matchResult = regex.find(purchase) ?: throw IllegalArgumentException(
+                getErrorMessage(INVALID_PURCHASE_REQUEST)
+            )
             matchResult
         }
 
@@ -105,40 +106,48 @@ object InputView {
         val quantity = matchResult.groupValues[2].toInt()
         inventory.checkQuantity(productName, quantity)
 
-        return PurchaseItem(productName, quantity, inventory.getPriceByName(productName), PromotionStatus.convertToStatus(inventory, productName, quantity))
+        return PurchaseItem(
+            productName,
+            quantity,
+            inventory.getPriceByName(productName),
+            PromotionStatus.convertToStatus(inventory, productName, quantity)
+        )
     }
 
-    fun askToApplyPromotion(productName : String, getCount : Int) : Boolean {
+    fun askToApplyPromotion(productName: String, getCount: Int): Boolean {
         println(ASK_PROMOTION_APPLY.format(productName, getCount))
         val answer = Console.readLine()
         try {
-            return when(answer) {
+            return when (answer) {
                 "Y" -> true
                 "N" -> false
                 else -> throw IllegalArgumentException(getErrorMessage(INVALID_ANSWER))
             }
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             println(e.message)
             return askToApplyPromotion(productName, getCount)
         }
     }
 
-    fun askToPurchaseWithoutPromotion(productName: String, nonPromotionalProductCount : Int) : Boolean {
-        println(ASK_PURCHASE_WITHOUT_PROMOTION.format(productName, nonPromotionalProductCount ))
+    fun askToPurchaseWithoutPromotion(
+        productName: String,
+        nonPromotionalProductCount: Int
+    ): Boolean {
+        println(ASK_PURCHASE_WITHOUT_PROMOTION.format(productName, nonPromotionalProductCount))
         val answer = Console.readLine()
         try {
-            return when(answer) {
+            return when (answer) {
                 "Y" -> true
                 "N" -> false
                 else -> throw IllegalArgumentException(getErrorMessage(INVALID_ANSWER))
             }
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             println(e.message)
             return askToPurchaseWithoutPromotion(productName, nonPromotionalProductCount)
         }
     }
 
-    fun askToAnotherPurchase() : Boolean {
+    fun askToAnotherPurchase(): Boolean {
         println(ASK_ANOTHER_PURCHASE)
         val answer = Console.readLine()
         try {
@@ -153,7 +162,7 @@ object InputView {
         }
     }
 
-    fun askToMembershipApply() : Boolean {
+    fun askToMembershipApply(): Boolean {
         println(ASK_MEMBERSHIP_DISCOUNT_APPLY)
         val answer = Console.readLine()
         try {

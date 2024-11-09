@@ -73,7 +73,7 @@ class Inventory(val products: List<Product>) {
                     }
                 }
                 productWithoutPromotion?.let { product ->
-                    while(productWithoutPromotion.quantity > 0 && quantity > 0) {
+                    while(product.quantity > 0 && quantity > 0) {
                         product.quantity -= 1
                         quantity -= 1
                     }

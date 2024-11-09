@@ -13,22 +13,49 @@ class Inventory(val products: List<Product>) {
         if(totalQuantity < quantity) throw IllegalArgumentException(getErrorMessage(INSUFFICIENT_QUANTITY))
     }
 
-    fun getAdditionalProductCount(productName: String): Int {
-        val products = products.filter { it.name == productName }
-        val productWithPromotion = products.find { it.promotion != null }
-        return productWithPromotion!!.promotion!!.getCount
+    private fun findProductWithPromotion(productName: String): Product? {
+        return products.find { it.name == productName && it.promotion != null }
     }
 
-    fun getNonPromotionalProductCount(productName: String, quantity: Int): Int {
-        val products = products.filter { it.name == productName }
-        val productWithPromotion = products.find { it.promotion != null }
-        val totalPromotionCount =
-            productWithPromotion!!.promotion!!.buyCount + productWithPromotion.promotion!!.getCount
-        val promotionalProductCount =
-            if(quantity <=  productWithPromotion.quantity) totalPromotionCount * (quantity / totalPromotionCount)
-            else totalPromotionCount * (productWithPromotion.quantity / totalPromotionCount)
+    private fun getTotalPromotionCount(product: Product): Int {
+        val promotion = product.promotion!!
+        return promotion.buyCount + promotion.getCount
+    }
 
-        return quantity - promotionalProductCount
+    fun getPriceByName(productName: String) : Int {
+        return products.find { it.name == productName }!!.price
+
+    }
+
+    fun getAdditionalProductCount(productName: String): Int {
+        val product = findProductWithPromotion(productName)
+        return product!!.promotion!!.getCount
+    }
+
+    fun getPromotionalProductCount(purchaseItem: PurchaseItem): Int {
+        val product = findProductWithPromotion(purchaseItem.productName)
+        val totalPromotionCount = getTotalPromotionCount(product!!)
+
+        return if (purchaseItem.quantity <= product.quantity)
+            totalPromotionCount * (purchaseItem.quantity / totalPromotionCount)
+        else
+            totalPromotionCount * (product.quantity / totalPromotionCount)
+    }
+
+    fun getNonPromotionalProductCount(purchaseItem: PurchaseItem): Int = purchaseItem.quantity - getPromotionalProductCount(purchaseItem)
+
+    fun getPromotionalPrice(purchaseItem: PurchaseItem) : Int {
+        val product = findProductWithPromotion(purchaseItem.productName)
+        val totalPromotionCount = getTotalPromotionCount(product!!)
+        val promotionalProductCount = getPromotionalProductCount(purchaseItem)
+        return promotionalProductCount / totalPromotionCount * product.price
+    }
+
+    fun getBonusItemCount(purchaseItem: PurchaseItem) : Int {
+        val promotionalCount = getPromotionalProductCount(purchaseItem)
+        val product = findProductWithPromotion(purchaseItem.productName)
+        val totalPromotionCount = getTotalPromotionCount(product!!)
+        return promotionalCount / totalPromotionCount
     }
 
     companion object {

@@ -9,6 +9,7 @@ import store.model.PromotionedPurchase
 import store.model.PurchaseItem
 import store.view.InputView.askToAnotherPurchase
 import store.view.InputView.askToApplyPromotion
+import store.view.InputView.askToMembershipApply
 import store.view.InputView.askToPurchaseWithoutPromotion
 import store.view.InputView.getPurchase
 import store.view.InputView.getProducts
@@ -21,20 +22,21 @@ class StoreController {
     fun run() {
         val promotions = getPromotions()
         val products = getProducts(promotions)
-
         val inventory = Inventory(products)
-        printInventory(inventory)
 
         val purchaseItems = getPurchaseItem(inventory)
         val promotionedPurchases = checkPromotion(inventory, purchaseItems)
-        promotionedPurchases.forEach { purchase ->
-            println(purchase)
+        promotionedPurchases.forEach { purhcase ->
+            println(purhcase)
         }
+
+        purchaseItems(inventory, promotionedPurchases, confirmApplyMembershipDiscount())
 
     }
 
     private fun getPurchaseItem(inventory: Inventory): List<PurchaseItem> {
         try {
+            printInventory(inventory)
             return getPurchase(inventory)
         } catch (e: Exception) {
             println(e.message)
@@ -44,18 +46,21 @@ class StoreController {
     }
 
     private fun checkPromotion(inventory: Inventory, purchaseItems: List<PurchaseItem>) : List<PromotionedPurchase> {
-        val appliedPromotions : MutableList<PromotionedPurchase> = mutableListOf()
+        val promotionedPurchases : MutableList<PromotionedPurchase> = mutableListOf()
         purchaseItems.forEach { item ->
             when (item.promotionStatus) {
-                NONE, PROMOTION_APPLIED -> {}
-                OUT_OF_STOCK -> confirmPurcahseWithoutPromotion(inventory, item)?.let { promotion ->
-                    appliedPromotions.add(promotion)
+                NONE -> { promotionedPurchases.add(PromotionedPurchase(item, 0, 0)) }
+                PROMOTION_APPLIED -> { promotionedPurchases.add(PromotionedPurchase(item, inventory.getBonusItemCount(item), inventory.getPromotionalPrice(item))) }
+                OUT_OF_STOCK -> confirmPurcahseWithoutPromotion(inventory, item)?.let { purchase ->
+                    promotionedPurchases.add(purchase)
                 }
-                NOT_APPLIED -> confirmApplyPromotion(inventory, item)
+                NOT_APPLIED -> confirmApplyPromotion(inventory, item)?.let { purchase ->
+                    promotionedPurchases.add(purchase)
+                }
             }
         }
 
-        return appliedPromotions
+        return promotionedPurchases
     }
 
     private fun confirmPurcahseWithoutPromotion(inventory: Inventory, purchaseItem: PurchaseItem) : PromotionedPurchase? {
@@ -74,6 +79,15 @@ class StoreController {
             return PromotionedPurchase(purchaseItem, inventory.getBonusItemCount(purchaseItem), inventory.getPromotionalPrice(purchaseItem))
         }
         return null
+    }
+
+    private fun confirmApplyMembershipDiscount() : Boolean {
+        if(askToMembershipApply()) return true
+        return false
+    }
+
+    private fun purchaseItems(inventory: Inventory, purchases: List<PromotionedPurchase>, isMemeberShip : Boolean) {
+        inventory.purchaseItems(purchases)
     }
 
     private fun askToAnotherPurchase(inventory: Inventory) {

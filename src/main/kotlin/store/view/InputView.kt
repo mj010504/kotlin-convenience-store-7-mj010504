@@ -20,6 +20,7 @@ object InputView {
     private const val ASK_PURCHASE_WITHOUT_PROMOTION ="현재 %s %d개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)"
     private const val INVALID_ANSWER = "Y 또는 N만 입력해야 합니다."
     private const val ASK_ANOTHER_PURCHASE = "감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)"
+    private const val ASK_MEMBERSHIP_DISCOUNT_APPLY = "멤버십 할인을 받으시겠습니까? (Y/N)"
 
     private fun getFiieLines(path: String): List<String> {
         val file = File(path)
@@ -137,19 +138,35 @@ object InputView {
         }
     }
 
-    fun askToAnotherPurchase() : Boolean{
+    fun askToAnotherPurchase() : Boolean {
         println(ASK_ANOTHER_PURCHASE)
         val answer = Console.readLine()
         try {
-            return when(answer) {
+            return when (answer) {
                 "Y" -> true
                 "N" -> false
                 else -> throw IllegalArgumentException(getErrorMessage(INVALID_ANSWER))
             }
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             println(e.message)
             return askToAnotherPurchase()
         }
     }
 
+    fun askToMembershipApply() : Boolean {
+        println(ASK_MEMBERSHIP_DISCOUNT_APPLY)
+        val answer = Console.readLine()
+        try {
+            return when (answer) {
+                "Y" -> true
+                "N" -> false
+                else -> throw IllegalArgumentException(getErrorMessage(INVALID_ANSWER))
+            }
+        } catch (e: Exception) {
+            println(e.message)
+            return askToMembershipApply()
+        }
+    }
 }
+
+

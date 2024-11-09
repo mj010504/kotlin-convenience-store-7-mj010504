@@ -17,6 +17,10 @@ class Inventory(val products: List<Product>) {
         return products.find { it.name == productName && it.promotion != null }
     }
 
+    private fun findProductWithoutPromotion(productName : String) : Product? {
+        return products.find { it.name == productName && it.promotion == null }
+    }
+
     private fun getTotalPromotionCount(product: Product): Int {
         val promotion = product.promotion!!
         return promotion.buyCount + promotion.getCount
@@ -24,7 +28,6 @@ class Inventory(val products: List<Product>) {
 
     fun getPriceByName(productName: String) : Int {
         return products.find { it.name == productName }!!.price
-
     }
 
     fun getAdditionalProductCount(productName: String): Int {
@@ -56,6 +59,28 @@ class Inventory(val products: List<Product>) {
         val product = findProductWithPromotion(purchaseItem.productName)
         val totalPromotionCount = getTotalPromotionCount(product!!)
         return promotionalCount / totalPromotionCount
+    }
+
+    fun purchaseItems(purchases: List<PromotionedPurchase>) {
+        purchases.forEach { purchase ->
+            val productWithPromotion = findProductWithPromotion(purchase.purchaseItem.productName)
+            val productWithoutPromotion = findProductWithoutPromotion(purchase.purchaseItem.productName)
+            var quantity = purchase.purchaseItem.quantity
+
+                productWithPromotion?.let { product ->
+                    while(product.quantity > 0 && quantity > 0) {
+                        product.quantity -= 1
+                        quantity -= 1
+                    }
+                }
+
+                while(productWithoutPromotion!!.quantity > 0 && quantity > 0) {
+                    productWithoutPromotion.quantity -= 1
+                    quantity -= 1
+                }
+            }
+
+
     }
 
     companion object {

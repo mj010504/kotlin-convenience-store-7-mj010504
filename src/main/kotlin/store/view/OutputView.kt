@@ -61,7 +61,7 @@ object OutputView {
         println(SEPARATOR_LINE)
         println(TOTAL_PURCHASE_AMOUNT.format(totalQuantity, formatNumber(totalPrice)))
         println(PROMOTIONAL_DISCOUNT_AMOUNT_FORMAT.format(formatNumber(totalPromotionalDiscount)))
-        var memberShipDiscount = if(totalPromotionedPrice != 0) ((totalPrice - totalPromotionedPrice) * MEMBERSHIP_DISCOUNT_RATE).toInt() else 0
+        var memberShipDiscount = ((totalPrice - totalPromotionedPrice) * MEMBERSHIP_DISCOUNT_RATE).toInt()
         if(memberShipDiscount > MEMBERSHIP_DISCOUNT_LIMIT) memberShipDiscount = MEMBERSHIP_DISCOUNT_LIMIT
         println(MEMBERSHIP_DISCOUNT_AMOUNT_FORMAT.format(formatNumber(memberShipDiscount)))
         val finalPurchaseAmount = totalPrice - totalPromotionalDiscount - memberShipDiscount

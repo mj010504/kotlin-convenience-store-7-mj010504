@@ -85,9 +85,9 @@ class StoreController {
 
     private fun purchaseItems(inventory: Inventory, purchases: List<PromotionedPurchase>, isMemeberShip : Boolean) {
         inventory.purchaseItems(purchases)
-        val totalPromotionedPrice = if(isMemeberShip) purchases.sumOf { purchase ->
+        val totalPromotionedPrice = purchases.sumOf { purchase ->
             inventory.getPromotionalProductCount(purchase.purchaseItem) * purchase.purchaseItem.price
-        } else 0
+        }
         printReceipt(purchases, totalPromotionedPrice)
         askToAnotherPurchase(inventory)
     }

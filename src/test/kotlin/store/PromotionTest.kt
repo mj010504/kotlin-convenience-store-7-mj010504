@@ -29,9 +29,11 @@ class PromotionTest : NsTest() {
     fun `프로모션 적용이 가능한 상품에 대해 고객이 해당 수량만큼 가져오지 않았을 경우, 사용자가 Y를 입력하면 프로모션이 적용된다`() {
         assertSimpleTest {
             run("[콜라-2]", "Y", "N", "N")
-            assertThat(output().replace("\\s".toRegex(), "")).contains("총구매액33,000") // 총구매액 수량 : 3 금액 : 3,000
-            assertThat(output().replace("\\s".toRegex(), "")).contains("행사할인-1,000")
-            assertThat(output().replace("\\s".toRegex(), "")).contains("내실돈2,000")
+            assertThat(output().replace("\\s".toRegex(), "")).contains(
+                "총구매액33,000",  // 총구매액 수량 : 3 금액 : 3,000
+                "행사할인-1,000",
+                "내실돈2,000"
+            )
         }
     }
 
@@ -39,9 +41,11 @@ class PromotionTest : NsTest() {
     fun `프로모션 적용이 가능한 상품에 대해 고객이 해당 수량만큼 가져오지 않았을 경우, 사용자가 N을 입력하면 프로모션이 적용되지 않는다`() {
         assertSimpleTest {
             run("[콜라-2]", "N", "N", "N")
-            assertThat(output().replace("\\s".toRegex(), "")).contains("총구매액22,000") // 총구매액 수량 : 2 금액 : 2,000
-            assertThat(output().replace("\\s".toRegex(), "")).contains("행사할인-0")
-            assertThat(output().replace("\\s".toRegex(), "")).contains("내실돈2,000")
+            assertThat(output().replace("\\s".toRegex(), "")).contains(
+                "총구매액22,000", // 총구매액 수량 : 2 금액 : 2,000
+                "행사할인-0",
+                "내실돈2,000"
+            )
         }
     }
 
@@ -57,9 +61,11 @@ class PromotionTest : NsTest() {
     fun `프로모션 재고가 부족하여 일부 수량을 프로모션 혜택 없이 결제해야 하는 경우, 사용자가 Y를 입력하면 일부 수량은 프로모션이 적용되지 않은 상태로 구매한다`() {
         assertSimpleTest {
             run("[탄산수-5]", "Y", "N", "N")
-            assertThat(output().replace("\\s".toRegex(), "")).contains("총구매액56,000") // 총구매액 수량 : 5 금액 : 6,000
-            assertThat(output().replace("\\s".toRegex(), "")).contains("행사할인-1,200")
-            assertThat(output().replace("\\s".toRegex(), "")).contains("내실돈4,800")
+            assertThat(output().replace("\\s".toRegex(), "")).contains(
+                "총구매액56,000", // 총구매액 수량 : 5 금액 : 6,000
+                "행사할인-1,200",
+                "내실돈4,800"
+            )
         }
     }
 

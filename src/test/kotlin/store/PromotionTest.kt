@@ -78,27 +78,6 @@ class PromotionTest : NsTest() {
         }
     }
 
-//    @Test
-//    fun `프로모션 기간 중이라면 프로모션 재고를 우선적으로 차감하며, 프로모션 재고가 부족할 경우에는 일반 재고를 사용한다`() {
-//
-//        // given
-//        val promotions = getPromotions()
-//        val products = getProducts(promotions)
-//        val inventory = Inventory(products)
-//        val purchases: List<PromotionedPurchase> =
-//            listOf(PromotionedPurchase(PurchaseItem("콜라", 11, 1000, PromotionStatus.OUT_OF_STOCK), 3, 3000))
-//
-//        // when
-//        inventory.purchaseItems(purchases)
-//        OutputView.printInventory(inventory)
-//
-//        // then
-//        assertThat(output().contains("콜라_1,000원_0개_탄산2+1"))
-//        assertThat(output().contains("콜라_1,000원_9개"))
-//
-//    }
-
-
     override fun runMain() {
         main()
     }

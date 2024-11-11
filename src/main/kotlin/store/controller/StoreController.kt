@@ -29,7 +29,7 @@ class StoreController {
     private fun purchase(inventory: Inventory) {
         val purchaseItems = getPurchaseItem(inventory)
         val promotionedPurchases = checkPromotion(inventory, purchaseItems)
-        purchaseItems(inventory, promotionedPurchases, confirmApplyMembershipDiscount())
+        if(promotionedPurchases.size != 0) purchaseItems(inventory, promotionedPurchases, confirmApplyMembershipDiscount())
     }
 
 
@@ -53,9 +53,7 @@ class StoreController {
                 OUT_OF_STOCK -> confirmPurcahseWithoutPromotion(inventory, item)?.let { purchase ->
                     promotionedPurchases.add(purchase)
                 }
-                NOT_APPLIED -> confirmApplyPromotion(inventory, item)?.let { purchase ->
-                    promotionedPurchases.add(purchase)
-                }
+                NOT_APPLIED -> promotionedPurchases.add(confirmApplyPromotion(inventory, item))
             }
         }
 
@@ -71,13 +69,13 @@ class StoreController {
 
     }
 
-    private fun confirmApplyPromotion(inventory: Inventory, purchaseItem: PurchaseItem) : PromotionedPurchase? {
+    private fun confirmApplyPromotion(inventory: Inventory, purchaseItem: PurchaseItem) : PromotionedPurchase {
         val additionalProductCount = inventory.getAdditionalProductCount(purchaseItem.productName)
         if(askToApplyPromotion(purchaseItem.productName, additionalProductCount)) {
             purchaseItem.addPromotionedProduct(additionalProductCount)
             return PromotionedPurchase(purchaseItem, inventory.getBonusItemCount(purchaseItem), inventory.getPromotionalPrice(purchaseItem))
         }
-        return null
+        return PromotionedPurchase(purchaseItem, inventory.getBonusItemCount(purchaseItem), inventory.getPromotionalPrice(purchaseItem))
     }
 
     private fun confirmApplyMembershipDiscount() : Boolean {

@@ -18,7 +18,7 @@ object OutputView {
     private const val RECEIPT_PROMOTIEND_PROUCT = "=============증 정==============="
     private const val PROMOTIONED_PRODUCT_FORMAT = "%s    %d"
     private const val SEPARATOR_LINE = "===================================="
-    private const val TOTAL_PURCHASE_AMOUNT = "총 구매액   %d   %s"
+    private const val TOTAL_PURCHASE_AMOUNT = "총구매액   %d   %s"
     private const val PROMOTIONAL_DISCOUNT_AMOUNT_FORMAT = "행사할인         -%s"
     private const val MEMBERSHIP_DISCOUNT_AMOUNT_FORMAT = "멤버십할인      -%s"
     private const val FINAL_PURCHASE_AMOUNT_FORMAT = "내실돈        %s"
@@ -50,7 +50,7 @@ object OutputView {
     }
 
     private fun printPromotiendProdcut(purchases: List<PromotionedPurchase>) {
-        println(RECEIPT_PROMOTIEND_PROUCT)
+        if(purchases.sumOf { it.bonusItemCount } > 0) println(RECEIPT_PROMOTIEND_PROUCT)
         purchases.forEach { purchase ->
             val item = purchase.purchaseItem
             if(purchase.bonusItemCount > 0 ) println(PROMOTIONED_PRODUCT_FORMAT.format(item.productName, purchase.bonusItemCount))

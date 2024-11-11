@@ -15,7 +15,6 @@ enum class PromotionStatus {
             val productWithPromotion = products.find { it.promotion != null }
             val promotion = productWithPromotion!!.promotion!!
             val totalPromotionCount = promotion.buyCount + promotion.getCount
-
             if (!isValidDate(promotion)) return NONE
             if (productWithPromotion.quantity >= quantity && quantity % totalPromotionCount == 0) return PROMOTION_APPLIED
             val promotionalProductCount = totalPromotionCount * (quantity / totalPromotionCount)
